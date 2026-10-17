@@ -354,6 +354,8 @@ a.ci:hover{border-color:var(--brand)}
 .rrow .fg{align-items:end}
 .toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:120;background:#101828;color:#fff;padding:12px 18px;border-radius:12px;display:none;max-width:92%;box-shadow:0 12px 30px -10px rgba(0,0,0,.5);font-weight:600;font-size:14px;text-align:center}
 
+.vprog{height:8px;border-radius:99px;background:var(--soft);overflow:hidden;margin:0 0 12px}
+.vprog i{display:block;height:100%;width:0;background:var(--brand);transition:width .2s}
 /* hero sound button, logo cropper, logo preview */
 .hsound{position:absolute;top:14px;right:14px;z-index:5;display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:99px;background:rgba(10,15,25,.74);color:#fff;font-weight:700;font-size:13px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 8px 20px -10px rgba(0,0,0,.6);transition:background .2s,transform .15s}
 .hsound:hover{background:rgba(10,15,25,.9)}
@@ -921,7 +923,7 @@ function whatsapp(msg) { const n = waNumber(); if (!n) { notify("WhatsApp number
 /* ===== Backend ===== */
 async function api(action, data = {}) {
   if (!API_URL) throw new Error("This website is not connected yet.");
-  const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 40000);
+  const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), data._t || 40000);
   try {
     const res = await fetch(API_URL, {method:"POST", body:JSON.stringify({action, token, ...data}), signal:ctl.signal, redirect:"follow"});
     const j = await res.json();
@@ -1092,11 +1094,16 @@ function mediaHtml(cfg) {
     const fb = fbEmbed(cfg.video, false);
     if (fb) return '<iframe class="vid-fb" title="" aria-hidden="true" tabindex="-1" allow="autoplay; encrypted-media; picture-in-picture" src="' + esc(fb) + '"></iframe>';
     const v = safeUrl(cfg.video);
-    if (v) return '<video autoplay muted loop playsinline preload="metadata"' + (imgs[0] ? ' poster="' + esc(imgs[0]) + '"' : '') + '><source src="' + esc(v) + '"></video>';
+    if (v) { const did = (v.match(/drive\.usercontent\.google\.com\/download\?id=([\w-]+)/) || [])[1]; return '<video autoplay muted loop playsinline preload="auto"' + (did ? ' data-did="' + esc(did) + '"' : '') + (imgs[0] ? ' poster="' + esc(imgs[0]) + '"' : '') + '><source src="' + esc(v) + '"></video>'; }
   }
   if (!imgs.length) return "";
   const use = cfg.style === "slides" ? imgs : [imgs[0]];
   return use.map((u, i) => '<div class="hm-slide' + (i ? '' : ' on') + '" style="background-image:' + esc(cssUrl(u)) + '"></div>').join("") + (use.length > 1 ? '<div class="hm-dots">' + use.map((u, i) => '<i class="' + (i ? '' : 'on') + '"></i>').join("") + '</div>' : '');
+}
+function driveFallback(v, box) {
+  const id = v.dataset.did; if (!id || v.dataset.fb) return; v.dataset.fb = "1";
+  const f = document.createElement("iframe"); f.title = "Video"; f.allow = "autoplay; fullscreen"; f.src = "https://drive.google.com/file/d/" + id + "/preview"; f.style.pointerEvents = "auto";
+  v.replaceWith(f); const b = box.querySelector(":scope > .hsound"); if (b) b.remove();
 }
 let soundArm = null;
 function setupSound(box, mediaEl, cfg, on) {
@@ -1138,6 +1145,7 @@ function applyHero(box, mediaEl, cfg) {
   mediaEl.innerHTML = html + '<div class="heroShade"></div>';
   const v = mediaEl.querySelector("video"); if (v) { v.muted = true; const pr = v.play && v.play(); if (pr && pr.catch) pr.catch(() => {}); }
   setupSound(box, mediaEl, cfg, true);
+  if (v && v.dataset.did) { const src = v.querySelector("source"); if (src) src.addEventListener("error", () => driveFallback(v, box)); v.addEventListener("error", () => driveFallback(v, box)); }
   const slides = mediaEl.querySelectorAll(".hm-slide");
   if (slides.length > 1) {
     let i = 0; const dots = mediaEl.querySelectorAll(".hm-dots i");
@@ -1401,7 +1409,44 @@ function toBase64(file, max, png) {
   });
 }
 async function uploadFile(file, png) { const data = await toBase64(file, png ? 700 : 1500, png); const r = await api("adminUploadImage", {data, mimeType: png ? "image/png" : "image/jpeg", name: file.name.replace(/\.[^.]+$/, "")}); return r.url; }
-function pickFiles(multiple) { return new Promise(res => { const i = document.createElement("input"); i.type = "file"; i.accept = "image/*"; i.multiple = !!multiple; i.onchange = () => res([...i.files]); i.click(); }); }
+function pickFiles(multiple, accept) { return new Promise(res => { const i = document.createElement("input"); i.type = "file"; i.accept = accept || "image/*"; i.multiple = !!multiple; i.onchange = () => res([...i.files]); i.click(); }); }
+/* ===== ADMIN: video upload (chunked, any size) ===== */
+const blobToB64 = b => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(",")[1] || ""); r.onerror = () => rej(new Error("Could not read the video file.")); r.readAsDataURL(b); });
+async function uploadVideo(file, onProgress) {
+  const mime = file.type || (/\.webm$/i.test(file.name) ? "video/webm" : /\.mov$/i.test(file.name) ? "video/quicktime" : "video/mp4");
+  if (!/^video\/(mp4|webm|quicktime|ogg)$/.test(mime)) throw new Error("Please choose an MP4 or WebM video.");
+  const st = await api("adminVideoStart", {name: file.name, mimeType: mime, size: file.size, _t: 60000});
+  let off = 0, fails = 0;
+  onProgress(0);
+  while (off < file.size) {
+    const part = file.slice(off, off + st.chunkSize), b64 = await blobToB64(part);
+    try {
+      const r = await api("adminVideoChunk", {uploadId: st.uploadId, offset: off, total: file.size, data: b64, _t: 180000});
+      fails = 0;
+      if (r.done) { onProgress(100); return r.url; }
+      off = Math.max(0, Number(r.next) || 0);
+      onProgress(Math.min(99, Math.round(off / file.size * 100)));
+    } catch (err) {
+      if (++fails >= 4 || /expired|Invalid|too large|larger/i.test(err.message)) throw err;
+      await new Promise(z => setTimeout(z, 1500 * fails));
+    }
+  }
+  throw new Error("The upload did not finish. Please try again.");
+}
+let hvBusy = false;
+async function heroVideoUpload(btn) {
+  if (hvBusy) return;
+  const [f] = await pickFiles(false, "video/mp4,video/webm,video/quicktime,video/*"); if (!f) return;
+  const bar = () => $("hvBar"), fill = () => $("hvFill"), stat = () => $("hvStat");
+  hvBusy = true; btn.disabled = true; if (bar()) bar().classList.remove("hidden");
+  const upd = p => { if (fill()) fill().style.width = p + "%"; if (stat()) stat().textContent = "Uploading… " + p + "%. Please keep this window open."; };
+  try {
+    const url = await uploadVideo(f, upd);
+    if (hd && currentTab === "hero") { hd.video = url; renderHeroEditor(); }
+    notify("Video uploaded. Press Save hero section to publish it.");
+  } catch (err) { notify(err.message); if (stat()) stat().textContent = err.message; }
+  finally { hvBusy = false; if (btn.isConnected) btn.disabled = false; if (bar()) bar().classList.add("hidden"); }
+}
 /* ===== ADMIN: logo cropper ===== */
 const CR = {img: null, s: 1, r: {x: 0, y: 0, w: 0, h: 0}, ratio: 0, drag: null, done: null};
 function cropImage(file) {
@@ -1763,8 +1808,9 @@ function renderHeroEditor() {
     (hd.images.length < 6 ? '<div class="upl" style="margin-top:10px"><input type="text" id="hUrl" placeholder="Or paste a picture link"><button type="button" class="btn ghost sm" data-hurl>Add link</button></div>' : '') +
     '<div class="field" style="max-width:240px"><label>Change picture every</label><select data-hp="speed">' + [3, 5, 7, 10].map(n => '<option value="' + n + '" ' + (hd.speed === n ? "selected" : "") + '>' + n + ' seconds</option>').join("") + '</select></div>';
   else media = '<div class="field"><label>Video link (YouTube, Facebook, or an MP4/WebM file)</label><input type="text" data-hp="video" value="' + esc(hd.video) + '" placeholder="e.g. https://youtu.be/nWQ1azRAhEk or a public Facebook video link"></div>' +
+    '<div class="upl" style="margin:0 0 8px"><button type="button" class="btn primary sm" data-hvup>' + ico("upload") + 'Upload a video file</button><span class="muted" id="hvStat">MP4 (H.264) or WebM. There is no size limit, but smaller files load faster for visitors.</span></div><div class="vprog hidden" id="hvBar"><i id="hvFill"></i></div>' +
     '<div class="field" style="max-width:380px"><label>Video sound</label><select data-hp="sound"><option value="off" ' + (hd.sound ? "" : "selected") + '>Sound off (muted)</option><option value="on" ' + (hd.sound ? "selected" : "") + '>Sound on (visitors can mute it)</option></select></div>' +
-    '<p class="muted" style="margin-top:-4px">Works with YouTube links (including youtu.be and Shorts links), public Facebook video links (facebook.com or fb.watch) and direct MP4 or WebM files. Browsers do not let a video play with sound until the visitor interacts with the page, so with Sound on the video starts muted, shows a Tap for sound button, and the sound switches on at the first tap or click. Facebook videos must be public, and Facebook may show its own play button.</p>' + one("Cover picture (shown while the video loads, and for visitors who prefer no motion)");
+    '<p class="muted" style="margin-top:-4px">Works with YouTube links (including youtu.be and Shorts links), public Facebook video links (facebook.com or fb.watch) and MP4 or WebM files, which you can upload here or paste as a link. Uploaded videos are kept in your Google Drive and streamed from there, so a very busy website can hit Google download limits; for heavy traffic use a YouTube link. Browsers do not let a video play with sound until the visitor interacts with the page, so with Sound on the video starts muted, shows a Tap for sound button, and the sound switches on at the first tap or click. Facebook videos must be public, and Facebook may show its own play button.</p>' + one("Cover picture (shown while the video loads, and for visitors who prefer no motion)");
   const look = isMedia ? '<h3 style="margin:18px 0 6px">Picture overlay and readability</h3><div class="fg"><div class="field"><label>Overlay style</label><select data-hp="tone"><option value="dark" ' + (hd.tone === "dark" ? "selected" : "") + '>Dark overlay with white text</option><option value="light" ' + (hd.tone === "light" ? "selected" : "") + '>Light overlay with dark text</option></select></div>' +
     '<div class="field"><label>Overlay strength</label><div class="rng"><input type="range" min="0" max="90" step="5" value="' + hd.overlay + '" data-hp="overlay"><b id="ovv">' + hd.overlay + '%</b></div></div>' +
     '<div class="field full"><label>On phones</label><select data-hp="mobile"><option value="stacked" ' + (hd.mobile === "stacked" ? "selected" : "") + '>Picture on top, text below (picture stays clear, recommended)</option><option value="overlay" ' + (hd.mobile === "overlay" ? "selected" : "") + '>Text over the picture</option></select></div></div>' +
@@ -1796,6 +1842,7 @@ $("adminContent").addEventListener("input", e => {
 $("adminContent").addEventListener("click", async e => {
   if (currentTab !== "hero" || !hd) return;
   const hs = e.target.closest("[data-hs]"), hup = e.target.closest("[data-hup]"), hadd = e.target.closest("[data-hadd]"), hrm = e.target.closest("[data-hrm]"), hurl = e.target.closest("[data-hurl]"), fadd = e.target.closest("[data-fadd]"), frm = e.target.closest("[data-frm]");
+  if (e.target.closest("[data-hvup]")) { heroVideoUpload(e.target.closest("[data-hvup]")); return; }
   if (hs) { hd.style = hs.dataset.hs; renderHeroEditor(); }
   else if (hrm) { hd.images.splice(+hrm.dataset.hrm, 1); renderHeroEditor(); }
   else if (hurl) { const u = normUrl($("hUrl").value); if (!u) return notify("Paste a valid picture link."); hd.images.push(u); renderHeroEditor(); }
