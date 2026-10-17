@@ -102,7 +102,6 @@ body[data-kind=site] .only-shop{display:none!important}
 .hero{padding:20px 0 0}
 .heroBox{position:relative;border-radius:26px;overflow:hidden;min-height:400px;display:grid;grid-template-columns:1.15fr .85fr;color:#fff;background:linear-gradient(115deg,var(--ink) 8%,var(--cm-brand-78-ink));background-size:cover;background-position:center}
 .heroBox{background-color:var(--ink)}
-.heroBox.hasimg::before{content:"";position:absolute;inset:0;background:linear-gradient(95deg,var(--cm-ink-92-transparent) 5%,var(--cm-ink-60-transparent) 65%,var(--cm-ink-30-transparent))}
 .heroCopy{padding:clamp(26px,5vw,64px);padding-bottom:clamp(64px,8vw,96px);align-self:center;max-width:660px;position:relative;z-index:1}
 .heroCopy h1{font-size:clamp(34px,5.4vw,62px);line-height:1.04;letter-spacing:-.035em;font-weight:800;margin:0 0 14px;overflow-wrap:anywhere}
 .heroCopy p{font-size:clamp(15px,1.7vw,18px);color:rgba(255,255,255,.86);margin:0 0 24px;max-width:480px}
@@ -442,6 +441,43 @@ body[data-th=studio] .mapbox iframe{filter:invert(.9) hue-rotate(180deg) saturat
 body[data-th=studio] .field input,body[data-th=studio] .field textarea,body[data-th=studio] .field select{background:#0f0f16}
 body[data-th=studio] #boot{background:#0b0b10}
 
+/* ===== Hero media: image / slideshow / video ===== */
+.heroMedia{position:absolute;inset:0;overflow:hidden;z-index:0}
+.heroMedia:empty{display:none}
+.hm-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.3s ease}
+.hm-slide.on{opacity:1;animation:kb 10s ease-out forwards}
+@keyframes kb{from{transform:scale(1)}to{transform:scale(1.08)}}
+.heroMedia video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.heroMedia iframe{position:absolute;border:0;pointer-events:none;top:50%;left:50%;width:max(100%,177.78vh);height:max(100%,56.25vw);transform:translate(-50%,-50%)}
+.hprev .heroMedia iframe{width:max(100%,320px);height:max(100%,180px)}
+.heroShade{position:absolute;inset:0;z-index:1;pointer-events:none;background:var(--sh)}
+.hm-dots{position:absolute;right:16px;bottom:14px;z-index:2;display:flex;gap:6px}
+.hm-dots i{width:8px;height:8px;border-radius:99px;background:rgba(255,255,255,.55);transition:width .3s,background .3s}
+.hm-dots i.on{background:#fff;width:22px}
+.heroArt{position:relative;z-index:1}
+.heroBox.tone-light{color:#111}
+.heroBox.tone-light .heroCopy p{color:#222}
+.heroBox.hasmedia:not(.tone-light) .heroCopy h1,.heroBox.hasmedia:not(.tone-light) .heroCopy p,.sHero.hasmedia:not(.tone-light) .sCopy h1,.sHero.hasmedia:not(.tone-light) .sCopy p.sub{text-shadow:0 2px 22px rgba(0,0,0,.4)}
+.heroBox.hasmedia{min-height:420px}
+body .sHero.hasmedia{background:var(--ink);color:#fff;min-height:clamp(430px,64vh,660px);display:flex;align-items:center}
+body .sHero.hasmedia .sHeroIn{grid-template-columns:1fr;width:min(1180px,100% - 32px)}
+body .sHero.hasmedia .sCopy{max-width:680px}
+body .sHero.hasmedia .sCopy p.sub{color:rgba(255,255,255,.92);opacity:1}
+body .sHero.hasmedia .tagpill{background:rgba(255,255,255,.16);color:#fff;border-color:rgba(255,255,255,.28)}
+body .sHero.hasmedia .btn.line{color:#fff}
+body .sHero.hasmedia.tone-light{color:#111}
+body .sHero.hasmedia.tone-light .sCopy p.sub{color:#222}
+body .sHero.hasmedia.tone-light .tagpill{background:rgba(255,255,255,.82);color:#111;border-color:rgba(0,0,0,.1)}
+body .sHero.hasmedia.tone-light .btn.line{color:#111}
+body .sHero.hasmedia::before{display:none}
+body:not([data-th=construction]) .sHero.hasmedia::after{display:none}
+.hprev{position:relative;height:200px;border-radius:16px;overflow:hidden;background:var(--ink);color:#fff;display:flex;align-items:center;padding:0 22px;margin:8px 0 14px}
+.hprev.tone-light{color:#111}
+.hprev .hp-copy{position:relative;z-index:2;max-width:70%}
+.hprev .hp-copy b{display:block;font-size:20px;line-height:1.15;margin-bottom:4px;font-family:var(--font-head)}
+.hprev .hp-copy span{font-size:13px;opacity:.9}
+.rng{display:flex;align-items:center;gap:12px}.rng input{flex:1;accent-color:var(--brand)}.rng b{min-width:44px;text-align:right}
+
 /* ===== Responsive ===== */
 @media(max-width:1020px){
   .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -450,7 +486,18 @@ body[data-th=studio] #boot{background:#0b0b10}
   .navact .btn.desk{display:none}
 }
 @media(max-width:820px){
-  .heroBox.hasimg::before{background:var(--cm-ink-78-transparent)}
+  .heroBox.stack-m,body .sHero.stack-m{display:flex;flex-direction:column;align-items:stretch;min-height:0}
+  .heroBox.stack-m .heroMedia,.sHero.stack-m .heroMedia{position:relative;inset:auto;height:clamp(190px,58vw,290px);flex:none}
+  .heroBox.stack-m .heroShade,.sHero.stack-m .heroShade{background:var(--shm)}
+  .heroBox.stack-m .heroCopy{padding:22px 20px 56px}
+  body .sHero.stack-m{padding-top:0}.sHero.stack-m .sHeroIn{padding-top:26px}
+  .heroBox.stack-m.tone-light,body .sHero.stack-m.tone-light{color:#fff}
+  .heroBox.stack-m.tone-light .heroCopy p,body .sHero.stack-m.tone-light .sCopy p.sub{color:rgba(255,255,255,.9)}
+  body .sHero.stack-m.tone-light .tagpill{background:rgba(255,255,255,.16);color:#fff;border-color:rgba(255,255,255,.28)}
+  body .sHero.stack-m.tone-light .btn.line{color:#fff}
+  .heroBox.hasmedia:not(.stack-m){min-height:380px}
+  body .sHero.hasmedia:not(.stack-m){min-height:420px}
+  .hprev{height:170px;padding:0 16px}.hprev .hp-copy{max-width:82%}
   .blob,.dcard,.ctab::before,.ctab::after,.orb{animation:none}
   body[data-th=studio] .sHero::before{animation:none}
   body[data-th=construction] .sHero::after{animation:none}
@@ -532,6 +579,7 @@ body[data-th=studio] #boot{background:#0b0b10}
   <!-- ===== SHOP: hero, features, catalogue ===== -->
   <section class="hero only-shop"><div class="wrap">
     <div class="heroBox" id="heroBox">
+      <div class="heroMedia" id="heroMedia"></div>
       <div class="heroCopy"><h1 id="heroTitle"></h1><p id="heroText"></p><a class="btn primary lg" id="heroCta" href="#catalogue"></a></div>
       <div class="heroArt" id="heroArt"><div class="orb" id="heroIcon"></div></div>
     </div>
@@ -553,6 +601,7 @@ body[data-th=studio] #boot{background:#0b0b10}
 
   <!-- ===== SITE: sections ===== -->
   <section class="sHero only-site" id="sHero">
+    <div class="heroMedia" id="sMedia"></div>
     <div class="wrap sHeroIn"><div class="sCopy" id="sCopy"></div><div class="sVisual" id="sVisual"></div></div>
   </section>
   <div class="marq only-site hidden" id="marq"></div>
@@ -643,7 +692,7 @@ body[data-th=studio] #boot{background:#0b0b10}
    Paste this client's Apps Script Web App /exec URL below.
    The rest of this file is identical for every client.
 ------------------------------------------------------------------- */
-const API_URL = "https://script.google.com/macros/s/AKfycbzxAv4yAAaLzrQLFz15BeulSaMk8-UE39ynjAGdnCPrx7EGFraFx0sZMAaNz1ck8Jcu/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzd51el8vgvgjrLBPIDCa5uUR5Q2m5Rf9-iiAhqyRAJTabMtCMIDQDDveQiD2-r1hI/exec";
 const CACHE_KEY = "elx_cache_v3_" + API_URL.slice(-14);
 
 /* ===== Icon set (stroke icons, no emojis) ===== */
@@ -703,6 +752,9 @@ const IC = {
   bed:'<path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9"/>',
   ruler:'<path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2M11.5 9.5l2-2M8.5 6.5l2-2M17.5 15.5l2-2"/>',
   zap:'<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>',
+  play:'<path d="m6 3 14 9-14 9z"/>',
+  layers:'<path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/>',
+  columns:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18"/>',
   trend:'<path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/>',
   pen:'<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
   quote:'<path d="M3 21c3 0 7-1 7-8V5c0-1.25-.76-2-2-2H4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2h4"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.76-2-2-2h-4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2h4"/>',
@@ -718,7 +770,7 @@ const IC = {
 };
 const ico = (n, c = "") => '<svg class="ic ' + c + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (IC[n] || IC.star) + '</svg>';
 function hydrate(root) { (root || document).querySelectorAll("[data-ic]").forEach(e => { if (!e.dataset.done) { e.innerHTML = ico(e.dataset.ic); e.dataset.done = 1; e.style.display = e.style.display || "inline-flex"; } }); }
-const SERVICE_ICONS = ["briefcase","chart","laptop","shield","hammer","wrench","building","home","truck","car","heart","activity","scissors","sparkles","leaf","droplet","camera","palette","megaphone","pen","award","star","zap","users","headset","compass","key","lock","globe","tag","trend","utensils","bag","message"];
+const SERVICE_ICONS = ["briefcase","chart","laptop","shield","hammer","wrench","building","home","truck","car","heart","activity","scissors","sparkles","leaf","droplet","camera","palette","megaphone","pen","award","star","zap","users","headset","compass","key","lock","globe","tag","trend","utensils","bag","message","check","clock","pin","phone","whatsapp"];
 const SOCIALS = [["facebook","Facebook"],["instagram","Instagram"],["twitter","X (Twitter)"],["tiktok","TikTok"],["youtube","YouTube"],["linkedin","LinkedIn"]];
 
 /* ===== Product specs (vehicles, property) ===== */
@@ -987,6 +1039,54 @@ $("cForm").addEventListener("submit", async e => {
 $("cAgain").onclick = () => { $("cOk").classList.add("hidden"); $("cFormBody").classList.remove("hidden"); };
 function prefillEnquiry(text) { $("cMsg").value = text; $("cOk").classList.add("hidden"); $("cFormBody").classList.remove("hidden"); $("contact").scrollIntoView({behavior: "smooth"}); setTimeout(() => $("cName").focus({preventScroll: true}), 600); }
 
+
+/* ===== Hero: colour / image / slideshow / video ===== */
+function heroCfgOf() {
+  let c = {}; try { c = JSON.parse(config.heroCfg || "{}") || {}; } catch (e) { c = {}; }
+  const legacy = safeUrl(config.heroImageUrl), site = kind() === "site";
+  let style = c.style || (legacy ? (site ? "split" : "image") : "gradient");
+  if (!site && style === "split") style = "image";
+  const imgs = (Array.isArray(c.images) ? c.images : (legacy ? [legacy] : [])).map(safeUrl).filter(Boolean).slice(0, 6), ov = Number(c.overlay);
+  return {style, images: imgs, video: String(c.video || "").trim(), overlay: Number.isFinite(ov) && c.overlay !== "" && c.overlay != null ? Math.max(0, Math.min(90, ov)) : 55, tone: c.tone === "light" ? "light" : "dark", mobile: c.mobile === "overlay" ? "overlay" : "stacked", speed: [3, 5, 7, 10].includes(Number(c.speed)) ? Number(c.speed) : 5};
+}
+const ytId = u => { const m = String(u || "").match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/); return m ? m[1] : ""; };
+const cssUrl = u => "url('" + String(u).replace(/['"()\s\\]/g, c => "%" + c.charCodeAt(0).toString(16).padStart(2, "0")) + "')";
+function mediaHtml(cfg) {
+  const imgs = cfg.images;
+  if (cfg.style === "video" && cfg.video && !(window.matchMedia && matchMedia("(prefers-reduced-motion:reduce)").matches)) {
+    const y = ytId(cfg.video);
+    if (y) return '<iframe title="" aria-hidden="true" tabindex="-1" allow="autoplay; encrypted-media" src="https://www.youtube.com/embed/' + y + '?autoplay=1&mute=1&loop=1&playlist=' + y + '&controls=0&modestbranding=1&playsinline=1&rel=0&disablekb=1"></iframe>';
+    const v = safeUrl(cfg.video);
+    if (v) return '<video autoplay muted loop playsinline preload="metadata"' + (imgs[0] ? ' poster="' + esc(imgs[0]) + '"' : '') + '><source src="' + esc(v) + '"></video>';
+  }
+  if (!imgs.length) return "";
+  const use = cfg.style === "slides" ? imgs : [imgs[0]];
+  return use.map((u, i) => '<div class="hm-slide' + (i ? '' : ' on') + '" style="background-image:' + esc(cssUrl(u)) + '"></div>').join("") + (use.length > 1 ? '<div class="hm-dots">' + use.map((u, i) => '<i class="' + (i ? '' : 'on') + '"></i>').join("") + '</div>' : '');
+}
+function applyHero(box, mediaEl, cfg) {
+  if (mediaEl._t) { clearInterval(mediaEl._t); mediaEl._t = 0; }
+  const html = ["image", "slides", "video"].includes(cfg.style) ? mediaHtml(cfg) : "";
+  box.classList.toggle("hasmedia", !!html); box.classList.toggle("tone-light", !!html && cfg.tone === "light"); box.classList.toggle("stack-m", !!html && cfg.mobile === "stacked" && !box.classList.contains("hprev"));
+  if (!html) { mediaEl.innerHTML = ""; return false; }
+  const c = (cfg.tone === "light" ? [255, 255, 255] : hex2rgb(config.darkColor || T().darkColor)).join(","), a = cfg.overlay / 100;
+  box.style.setProperty("--sh", "linear-gradient(95deg,rgba(" + c + "," + a + "),rgba(" + c + "," + (a * 0.72).toFixed(3) + "))");
+  box.style.setProperty("--shm", "rgba(" + c + "," + Math.min(a, 0.25) + ")");
+  mediaEl.innerHTML = html + '<div class="heroShade"></div>';
+  const v = mediaEl.querySelector("video"); if (v) { v.muted = true; const pr = v.play && v.play(); if (pr && pr.catch) pr.catch(() => {}); }
+  const slides = mediaEl.querySelectorAll(".hm-slide");
+  if (slides.length > 1) {
+    let i = 0; const dots = mediaEl.querySelectorAll(".hm-dots i");
+    mediaEl._t = setInterval(() => { if (document.hidden) return; slides[i].classList.remove("on"); if (dots[i]) dots[i].classList.remove("on"); i = (i + 1) % slides.length; slides[i].classList.add("on"); if (dots[i]) dots[i].classList.add("on"); }, cfg.speed * 1000);
+  }
+  return true;
+}
+function featuresCfg() {
+  let c = {}; try { c = JSON.parse(config.features || "{}") || {}; } catch (e) { c = {}; }
+  const def = (T().features || []).map(f => ({icon: f[0], title: f[1], text: f[2]}));
+  const items = (Array.isArray(c.items) ? c.items.filter(x => x && String(x.title || "").trim()) : def).slice(0, 4);
+  return {show: c.show !== false && items.length > 0, items};
+}
+
 /* ===== SHOP: hero, finder, products ===== */
 function shopStatic() {
   const t = T();
@@ -996,11 +1096,11 @@ function shopStatic() {
   $("heroIcon").innerHTML = ico(t.icon);
   $("fQuery").placeholder = t.searchPh;
   $("catalogueTitle").textContent = t.title;
-  const hero = safeUrl(config.heroImageUrl);
-  $("heroBox").style.backgroundImage = hero ? 'url("' + hero.replace(/"/g, "%22") + '")' : ""; $("heroBox").classList.toggle("hasimg", !!hero);
-  $("heroArt").classList.toggle("hidden", !!hero);
-  $("features").style.setProperty("--n", t.features.length);
-  $("features").innerHTML = t.features.map(f => '<div class="feat"><i>' + ico(f[0]) + '</i><div><b>' + esc(f[1]) + '</b><small>' + esc(f[2]) + '</small></div></div>').join("");
+  const mediaOn = applyHero($("heroBox"), $("heroMedia"), heroCfgOf());
+  $("heroArt").classList.toggle("hidden", mediaOn);
+  const fc = featuresCfg(); $("features").parentElement.classList.toggle("hidden", !fc.show);
+  $("features").style.setProperty("--n", fc.items.length || 1);
+  $("features").innerHTML = fc.items.map(f => '<div class="feat"><i>' + ico(f.icon || "star") + '</i><div><b>' + esc(f.title) + '</b><small>' + esc(f.text || "") + '</small></div></div>').join("");
   const enquiry = t.mode === "enquiry";
   $("stripTitle").textContent = enquiry ? "Have a question?" : "Ready to order?";
   $("stripText").textContent = enquiry ? "Message us on WhatsApp and we will get back to you quickly." : "Message us on WhatsApp and we will confirm availability and delivery.";
@@ -1126,14 +1226,15 @@ $("lbPrev").onclick = e => { e.stopPropagation(); lbShow(lbIdx - 1); };
 $("lbNext").onclick = e => { e.stopPropagation(); lbShow(lbIdx + 1); };
 
 function renderSite() {
-  const t = T(), d = siteData(), hero = safeUrl(config.heroImageUrl);
+  const t = T(), d = siteData(), hc = heroCfgOf(), mediaOn = applyHero($("sHero"), $("sMedia"), hc), splitImg = !mediaOn && hc.style === "split" ? hc.images[0] : "";
   const title = config.heroTitle || t.heroTitle, sub = config.description || t.description, cta = config.ctaText || t.ctaText || "Contact us";
   const services = (d.services || []).filter(s => s && s.title), about = d.about || {}, hasAbout = !!(about.title || about.text);
 
   $("sCopy").innerHTML = (config.tagline ? '<span class="tagpill" style="--i:0">' + ico("check") + '<span>' + esc(config.tagline) + '</span></span>' : '') +
     '<h1 style="--i:1">' + esc(title).replace(/\n/g, "<br>") + '</h1><p class="sub" style="--i:2">' + esc(sub) + '</p>' +
     '<div class="sBtns" style="--i:3"><a class="btn primary lg" href="#contact">' + esc(cta) + ico("arrow") + '</a>' + (services.length ? '<a class="btn line lg" href="#services">Our services</a>' : hasAbout ? '<a class="btn line lg" href="#about">About us</a>' : '') + '</div>';
-  $("sVisual").innerHTML = hero ? '<img src="' + esc(hero) + '" alt="">' :
+  $("sVisual").classList.toggle("hidden", mediaOn);
+  $("sVisual").innerHTML = splitImg ? '<img src="' + esc(splitImg) + '" alt="">' :
     '<div class="deco"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><svg class="pulse" viewBox="0 0 600 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 30h200l20-24 30 48 30-48 20 24h300"/></svg>' +
     (services[0] ? '<div class="dcard d1"><i>' + ico(services[0].icon || "star") + '</i><span>' + esc(services[0].title) + '</span></div>' : '') +
     (services[1] ? '<div class="dcard d2"><i>' + ico(services[1].icon || "star") + '</i><span>' + esc(services[1].title) + '</span></div>' : '') + '</div>';
@@ -1217,8 +1318,8 @@ $("loginForm").onsubmit = async e => {
 };
 $("logout").onclick = leaveDashboard;
 
-const TABS_SHOP = [["products", "Products"], ["orders", "Orders"], ["inquiries", "Enquiries"], ["profile", "Business details"], ["theme", "Theme"], ["security", "Security"]];
-const TABS_SITE = [["content", "Website content"], ["inquiries", "Enquiries"], ["profile", "Business details"], ["theme", "Theme"], ["security", "Security"]];
+const TABS_SHOP = [["products", "Products"], ["orders", "Orders"], ["inquiries", "Enquiries"], ["hero", "Hero section"], ["profile", "Business details"], ["theme", "Theme"], ["security", "Security"]];
+const TABS_SITE = [["content", "Website content"], ["hero", "Hero section"], ["inquiries", "Enquiries"], ["profile", "Business details"], ["theme", "Theme"], ["security", "Security"]];
 function renderTabs() {
   const tabs = kind() === "site" ? TABS_SITE : TABS_SHOP;
   if (!tabs.some(t => t[0] === currentTab)) currentTab = tabs[0][0];
@@ -1261,6 +1362,7 @@ async function loadTab(tab) {
     else if (tab === "orders") await tabOrders(el);
     else if (tab === "inquiries") await tabInquiries(el);
     else if (tab === "content") await tabContent(el);
+    else if (tab === "hero") await tabHero(el);
     else if (tab === "profile") await tabProfile(el);
     else if (tab === "theme") await tabTheme(el);
     else tabSecurity(el);
@@ -1367,7 +1469,7 @@ async function tabProfile(el) {
     fld("phone", "Public phone number", c.phone, "tel") + fld("hours", "Opening hours", c.hours, "text", "", "e.g. Mon-Fri 8am-5pm") +
     fld("address", "Business address (shows a map on your website)", c.address, "text", "full", "Street, suburb, city") +
     '<div class="full">' + imgField("logoUrl", "Logo (square works best)", c.logoUrl, true) + '</div>' +
-    (shop ? '<div class="full">' + imgField("heroImageUrl", "Homepage banner picture (wide image)", c.heroImageUrl, false) + '</div><div class="field full"><label>Homepage headline</label><textarea name="heroTitle">' + esc(c.heroTitle || t.heroTitle) + '</textarea></div><div class="field full"><label>Short description</label><textarea name="description">' + esc(c.description || t.description) + '</textarea></div>' : '') +
+    (shop ? '<div class="field full"><label>Homepage headline</label><textarea name="heroTitle">' + esc(c.heroTitle || t.heroTitle) + '</textarea></div><div class="field full"><label>Short description</label><textarea name="description">' + esc(c.description || t.description) + '</textarea></div>' : '') +
     '<div class="field full" style="margin-bottom:0"><label style="font-size:14px;color:var(--text)">Social media links</label><span class="muted">Paste a link for each network you use. Only networks with a link appear on your website.</span></div>' +
     SOCIALS.map(([k, l]) => fld(k, l, c[k], "text", "", "https://" + k + ".com/yourpage")).join("") +
     fld("primaryColor", "Main colour", c.primaryColor || t.primaryColor, "color") + fld("darkColor", "Dark colour", c.darkColor || t.darkColor, "color") + fld("accentColor", "Accent colour", c.accentColor || t.accentColor, "color") +
@@ -1411,7 +1513,7 @@ const getPath = (o, p) => p.split(".").reduce((c, k) => c == null ? c : c[k], o)
 function setPath(o, p, v) { const k = p.split("."); let c = o; for (let i = 0; i < k.length - 1; i++) c = c[k[i]]; c[k[k.length - 1]] = v; }
 function initDraft() {
   const d = siteData(), t = T(), pad = (a, n, blank) => { a = (a || []).map(x => ({...x})); while (a.length < n) a.push({...blank}); return a; };
-  sd = {hero: {title: config.heroTitle || t.heroTitle || "", text: config.description || t.description || "", button: config.ctaText || t.ctaText || "", image: config.heroImageUrl || ""},
+  sd = {hero: {title: config.heroTitle || t.heroTitle || "", text: config.description || t.description || "", button: config.ctaText || t.ctaText || ""},
     about: {title: "", text: "", image: "", ...(d.about || {})}, services: (d.services || []).map(x => ({icon: "star", title: "", text: "", ...x})),
     gallery: (d.gallery || []).slice(0, 12), stats: pad(d.stats, 4, {value: "", label: ""}).slice(0, 4), testimonials: (d.testimonials || []).map(x => ({name: "", role: "", text: "", ...x})),
     faq: (d.faq || []).map(x => ({q: "", a: "", ...x})), cta: {title: "", text: "", button: "", ...(d.cta || {})}};
@@ -1426,7 +1528,7 @@ function renderSiteEditor(keep) {
   const addBtn = (path, n, max, label) => n < max ? '<button type="button" class="btn ghost sm" data-add="' + path + '">' + ico("plus") + label + '</button>' : '<span class="muted">Maximum of ' + max + ' reached.</span>';
   const rm = path => '<button type="button" class="btn danger sm" data-rmrow="' + path + '" style="margin-bottom:11px">' + ico("trash") + 'Remove</button>';
   const body = {
-    hero: '<div class="fg">' + sArea("hero.title", "Main headline") + sArea("hero.text", "Short intro under the headline") + sIn("hero.button", "Main button text", "e.g. Get a Quote") + '<div></div>' + sImg("hero.image", "Hero picture (optional, wide landscape works best)") + '</div>',
+    hero: '<div class="fg">' + sArea("hero.title", "Main headline") + sArea("hero.text", "Short intro under the headline") + sIn("hero.button", "Main button text", "e.g. Get a Quote") + '</div>',
     about: '<div class="fg">' + sIn("about.title", "Heading", "e.g. Who we are") + '<div></div>' + sArea("about.text", "Your story", "Tell visitors who you are and why they can trust you.") + sImg("about.image", "Picture of your team or premises") + sIn("about.points.0", "Highlight 1", "e.g. Licensed and insured") + sIn("about.points.1", "Highlight 2") + sIn("about.points.2", "Highlight 3") + '</div>',
     services: sd.services.map((s, i) => '<div class="rrow"><div class="fg"><div class="field"><label>Icon</label><select data-p="services.' + i + '.icon">' + SERVICE_ICONS.map(n => '<option ' + (n === s.icon ? "selected" : "") + ' value="' + n + '">' + n.charAt(0).toUpperCase() + n.slice(1) + '</option>').join("") + '</select></div>' + sIn("services." + i + ".title", "Service name") + sArea("services." + i + ".text", "Short description") + '</div>' + rm("services." + i) + '</div>').join("") + addBtn("services", sd.services.length, 8, "Add a service"),
     stats: '<p class="muted" style="margin-top:0">Short numbers that build trust, e.g. 10+ Years of experience. Leave a row empty to hide it.</p>' + sd.stats.map((s, i) => '<div class="fg"><div class="field"><label>Number ' + (i + 1) + '</label><input type="text" data-p="stats.' + i + '.value" value="' + esc(s.value) + '" placeholder="e.g. 500+"></div><div class="field"><label>Label</label><input type="text" data-p="stats.' + i + '.label" value="' + esc(s.label) + '" placeholder="e.g. Happy clients"></div></div>').join(""),
@@ -1472,8 +1574,86 @@ $("adminContent").addEventListener("click", async e => {
       testimonials: sd.testimonials.filter(x => nz(x.text)).map(x => ({name: nz(x.name), role: nz(x.role), text: nz(x.text)})),
       faq: sd.faq.filter(x => nz(x.q)).map(x => ({q: nz(x.q), a: nz(x.a)})), cta: {title: nz(sd.cta.title), text: nz(sd.cta.text), button: nz(sd.cta.button)}};
     b.disabled = true; b.textContent = "Saving…";
-    try { const r = await api("adminSaveConfig", {config: {heroTitle: nz(sd.hero.title), description: nz(sd.hero.text), ctaText: nz(sd.hero.button), heroImageUrl: nz(sd.hero.image), siteContent: JSON.stringify(content)}}); applyConfig(r.config); persist(); notify("Website updated. Your changes are live."); }
+    try { const r = await api("adminSaveConfig", {config: {heroTitle: nz(sd.hero.title), description: nz(sd.hero.text), ctaText: nz(sd.hero.button), siteContent: JSON.stringify(content)}}); applyConfig(r.config); persist(); notify("Website updated. Your changes are live."); }
     catch (err) { notify(err.message); } finally { b.disabled = false; b.textContent = "Save website"; }
+  }
+});
+
+
+/* ===== ADMIN: hero section (style, pictures, video, overlay) + highlights ===== */
+let hd = null, fd = null;
+const normHd = () => ({style: hd.style, images: hd.images.filter(Boolean).slice(0, 6), video: hd.video || "", overlay: hd.overlay, tone: hd.tone, mobile: hd.mobile, speed: hd.speed});
+async function tabHero(el) {
+  config = {...config, ...(await api("adminConfig")).config};
+  const c = heroCfgOf(); hd = {style: c.style, images: c.images.slice(), video: c.video, overlay: c.overlay, tone: c.tone, mobile: c.mobile, speed: c.speed};
+  const f = featuresCfg(); fd = {show: f.show, items: f.items.map(x => ({...x}))};
+  renderHeroEditor();
+}
+function updateHPrev() { const b = $("hPrev"); if (b) applyHero(b, $("hPrevMedia"), normHd()); }
+function renderHeroEditor() {
+  const el = $("adminContent"), site = kind() === "site", st = hd.style, isMedia = ["image", "slides", "video"].includes(st);
+  const styles = [["gradient", "Colour only", "sparkles"], ["image", "Single picture", "image"], ["slides", "Slideshow", "layers"], ["video", "Video", "play"]]; if (site) styles.push(["split", "Picture beside text", "columns"]);
+  const one = (label) => { const v = hd.images[0] || "", u = safeUrl(v); return '<div class="field"><label>' + label + '</label><div class="upl"><div class="thumb">' + (u ? '<img src="' + esc(u) + '" alt="">' : ico("image")) + '</div><input type="text" data-hp="img0" value="' + esc(v) + '" placeholder="Paste a picture link or upload"><button type="button" class="btn ghost sm" data-hup>' + ico("upload") + 'Upload</button></div></div>'; };
+  let media = "";
+  if (st === "gradient") media = '<p class="muted">No picture. The hero uses your brand colours with a soft animated design.</p>';
+  else if (st === "image" || st === "split") media = one(st === "split" ? "Picture shown beside the text" : "Hero picture (wide landscape works best)");
+  else if (st === "slides") media = '<div class="field"><label>Slideshow pictures (2 to 6). They fade into each other.</label></div><div class="imgs">' + hd.images.map((u, i) => '<div class="im"><img src="' + esc(u) + '" alt=""><button type="button" data-hrm="' + i + '" aria-label="Remove picture">' + ico("x") + '</button></div>').join("") + (hd.images.length < 6 ? '<button type="button" class="addim" data-hadd>' + ico("upload") + '<span>Add pictures</span></button>' : '') + '</div>' +
+    (hd.images.length < 6 ? '<div class="upl" style="margin-top:10px"><input type="text" id="hUrl" placeholder="Or paste a picture link"><button type="button" class="btn ghost sm" data-hurl>Add link</button></div>' : '') +
+    '<div class="field" style="max-width:240px"><label>Change picture every</label><select data-hp="speed">' + [3, 5, 7, 10].map(n => '<option value="' + n + '" ' + (hd.speed === n ? "selected" : "") + '>' + n + ' seconds</option>').join("") + '</select></div>';
+  else media = '<div class="field"><label>Video link</label><input type="text" data-hp="video" value="' + esc(hd.video) + '" placeholder="Link to an MP4 or WebM file, or a YouTube link"></div><p class="muted" style="margin-top:-4px">Keep videos short, silent and under 10 MB for fast loading. The video plays muted and loops.</p>' + one("Cover picture (shown while the video loads, and for visitors who prefer no motion)");
+  const look = isMedia ? '<h3 style="margin:18px 0 6px">Picture overlay and readability</h3><div class="fg"><div class="field"><label>Overlay style</label><select data-hp="tone"><option value="dark" ' + (hd.tone === "dark" ? "selected" : "") + '>Dark overlay with white text</option><option value="light" ' + (hd.tone === "light" ? "selected" : "") + '>Light overlay with dark text</option></select></div>' +
+    '<div class="field"><label>Overlay strength</label><div class="rng"><input type="range" min="0" max="90" step="5" value="' + hd.overlay + '" data-hp="overlay"><b id="ovv">' + hd.overlay + '%</b></div></div>' +
+    '<div class="field full"><label>On phones</label><select data-hp="mobile"><option value="stacked" ' + (hd.mobile === "stacked" ? "selected" : "") + '>Picture on top, text below (picture stays clear, recommended)</option><option value="overlay" ' + (hd.mobile === "overlay" ? "selected" : "") + '>Text over the picture</option></select></div></div>' +
+    '<p class="muted" style="margin-top:0">Low strength shows a bright, clear picture. High strength gives a dark, moody picture where text is easiest to read.</p>' +
+    '<div class="hprev" id="hPrev"><div class="heroMedia" id="hPrevMedia"></div><div class="hp-copy"><b>Your headline goes here</b><span>Supporting text sits on top of the picture.</span></div></div>' : '';
+  let feats = "";
+  if (!site) feats = '<details class="acc" style="margin-top:14px"><summary>Highlights under the hero' + ico("chev") + '</summary><div><div class="field" style="max-width:260px"><label>Show this strip</label><select data-fp="show"><option value="true" ' + (fd.show ? "selected" : "") + '>Yes, show it</option><option value="false" ' + (fd.show ? "" : "selected") + '>No, hide it</option></select></div>' +
+    fd.items.map((x, i) => '<div class="rrow"><div class="fg"><div class="field"><label>Icon</label><select data-fp="items.' + i + '.icon">' + SERVICE_ICONS.map(n => '<option ' + (n === x.icon ? "selected" : "") + ' value="' + n + '">' + n.charAt(0).toUpperCase() + n.slice(1) + '</option>').join("") + '</select></div><div class="field"><label>Title</label><input type="text" data-fp="items.' + i + '.title" value="' + esc(x.title) + '"></div><div class="field full"><label>Short line under the title</label><input type="text" data-fp="items.' + i + '.text" value="' + esc(x.text || "") + '"></div></div><button type="button" class="btn danger sm" data-frm="' + i + '" style="margin-bottom:11px">' + ico("trash") + 'Remove</button></div>').join("") +
+    '<div class="actions">' + (fd.items.length < 4 ? '<button type="button" class="btn ghost sm" data-fadd>' + ico("plus") + 'Add a highlight</button>' : '') + '<button type="button" class="btn ghost sm" data-freset>Reset to style defaults</button></div></div></details>';
+  const open = el.querySelector("details") && el.querySelector("details").open, y = $("adminModal").scrollTop;
+  el.innerHTML = '<h3 style="margin:0 0 8px">Hero style</h3><div class="themes" id="hStyles">' + styles.map(s => '<button type="button" class="tcard ' + (st === s[0] ? "on" : "") + '" data-hs="' + s[0] + '"><div class="sw" style="background:var(--ink)">' + ico(s[2]) + '</div><b>' + s[1] + '</b></button>').join("") + '</div>' + media + look + feats +
+    '<div class="actions" style="position:sticky;bottom:0;background:var(--surface);padding:12px 0"><button class="btn primary" id="hSave" type="button">Save hero section</button></div>';
+  if (open) { const d = el.querySelector("details"); if (d) d.open = true; }
+  $("adminModal").scrollTop = y; hydrate(el); updateHPrev();
+}
+$("adminContent").addEventListener("input", e => {
+  if (currentTab !== "hero" || !hd) return;
+  const h = e.target.closest("[data-hp]"), f = e.target.closest("[data-fp]");
+  if (h) {
+    const k = h.dataset.hp, v = h.value;
+    if (k === "img0") { hd.images[0] = v.trim(); if (!hd.images[0]) hd.images.shift(); const th = h.closest(".upl").querySelector(".thumb"), u = safeUrl(v); th.innerHTML = u ? '<img src="' + esc(u) + '" alt="">' : ico("image"); }
+    else if (k === "overlay") { hd.overlay = Number(v); $("ovv").textContent = v + "%"; }
+    else if (k === "speed") hd.speed = Number(v);
+    else hd[k] = v;
+    updateHPrev();
+  } else if (f) { setPath(fd, f.dataset.fp, f.dataset.fp === "show" ? f.value === "true" : f.value); }
+});
+$("adminContent").addEventListener("click", async e => {
+  if (currentTab !== "hero" || !hd) return;
+  const hs = e.target.closest("[data-hs]"), hup = e.target.closest("[data-hup]"), hadd = e.target.closest("[data-hadd]"), hrm = e.target.closest("[data-hrm]"), hurl = e.target.closest("[data-hurl]"), fadd = e.target.closest("[data-fadd]"), frm = e.target.closest("[data-frm]");
+  if (hs) { hd.style = hs.dataset.hs; renderHeroEditor(); }
+  else if (hrm) { hd.images.splice(+hrm.dataset.hrm, 1); renderHeroEditor(); }
+  else if (hurl) { const u = normUrl($("hUrl").value); if (!u) return notify("Paste a valid picture link."); hd.images.push(u); renderHeroEditor(); }
+  else if (hup) { const [f] = await pickFiles(false); if (!f) return; hup.disabled = true; try { hd.images[0] = await uploadFile(f, false); notify("Picture uploaded. Remember to save."); renderHeroEditor(); } catch (err) { notify(err.message); hup.disabled = false; } }
+  else if (hadd) {
+    const files = (await pickFiles(true)).slice(0, 6 - hd.images.length); if (!files.length) return; hadd.disabled = true; hadd.querySelector("span").textContent = "Uploading…";
+    try { for (const f of files) hd.images.push(await uploadFile(f, false)); notify(files.length + " picture" + (files.length > 1 ? "s" : "") + " added"); } catch (err) { notify(err.message); }
+    renderHeroEditor();
+  }
+  else if (fadd) { fd.items.push({icon: "star", title: "", text: ""}); renderHeroEditor(); $("adminContent").querySelector("details").open = true; }
+  else if (frm) { fd.items.splice(+frm.dataset.frm, 1); renderHeroEditor(); $("adminContent").querySelector("details").open = true; }
+  else if (e.target.closest("[data-freset]")) { fd = {show: true, items: T().features.map(f => ({icon: f[0], title: f[1], text: f[2]}))}; renderHeroEditor(); $("adminContent").querySelector("details").open = true; }
+  else if (e.target.closest("#hSave")) {
+    const cfg = normHd(), b = $("hSave");
+    if (["image", "split"].includes(cfg.style)) cfg.images = cfg.images.slice(0, 1);
+    if (["image", "slides", "split"].includes(cfg.style) && !cfg.images.length) return notify("Add at least one picture first.");
+    if (cfg.style === "slides" && cfg.images.length < 2) return notify("Add at least two pictures for a slideshow.");
+    if (cfg.style === "video" && !cfg.video && !cfg.images.length) return notify("Add a video link first.");
+    const payload = {heroCfg: JSON.stringify(cfg), heroImageUrl: cfg.images[0] || ""};
+    if (kind() === "shop") payload.features = JSON.stringify({show: fd.show, items: fd.items.filter(x => String(x.title || "").trim()).map(x => ({icon: x.icon || "star", title: String(x.title).trim(), text: String(x.text || "").trim()}))});
+    b.disabled = true; b.textContent = "Saving…";
+    try { const r = await api("adminSaveConfig", {config: payload}); applyConfig(r.config); persist(); notify("Hero section updated. Your changes are live."); }
+    catch (err) { notify(err.message); } finally { b.disabled = false; b.textContent = "Save hero section"; }
   }
 });
 
